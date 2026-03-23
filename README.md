@@ -32,7 +32,8 @@
 ## 📦 Resources & Data
 - **Model Weights & Logs**: trained weights and detailed training logs are available at [Baidu Netdisk (Link)](https://pan.baidu.com/s/1jniOQEKYm45HAmPvcGESdQ?pwd=srxr) (Password: `srxr`).
 - **Dataset Status**: We are currently preparing a comprehensive version of the SOP dataset for open access. While the full dataset is under a staged release process to meet data-sharing protocols, we provide sample images in the demo/ folder for initial testing and verification.
-
+- **Code Status**: The complete implementation of ESPDet modules will be released upon the acceptance of our paper. 
+  
 ---
 
 ## 🛠️ Installation
