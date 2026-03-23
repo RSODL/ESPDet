@@ -9,7 +9,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-1.8+-ee4c2c.svg)](https://pytorch.org/get-started/locally/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/RSODL/ESPDet/pulls)
 
-[💡 Introduction](#-introduction) | [🛠️Installation](##installation) | [👀Model Zoo](#overview-of-benchmark) | [🤔Reporting Issues](https://github.com/RSODL/ESPDet/issues)
+[💡 Introduction](#-introduction) | [🛠️Installation](#-installation) | [👀Model Zoo](#overview-of-benchmark) | [🤔Reporting Issues](https://github.com/RSODL/ESPDet/issues)
 
 </div>
 
