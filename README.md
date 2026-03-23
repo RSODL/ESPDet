@@ -66,10 +66,10 @@ Please organize your SOP dataset (e.g., SAR or Optical imagery) following the CO
 data/SOP_dataset/
 ├── images/
 │   ├── train/
-│   └── val/
+│   └── test/
 └── annotations/
     ├── train.json
-    └── val.json
+    └── test.json
 ```
 2. Training
 To train ESPDet on a single GPU (or multiple GPUs), run:
