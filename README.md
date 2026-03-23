@@ -24,7 +24,7 @@
 ---
 
 ## 🆕 What's New
-- **[2026/03]** ESPDet code is officially released!
+- **[2026/03]** The complete implementation of ESPDet modules will be released upon the acceptance of our paper.
 - **[2026/02]** Our paper is submitted to *Remote Sensing of Environment*.
 
 ---
