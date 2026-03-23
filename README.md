@@ -25,7 +25,7 @@
 
 ## 🆕 What's New
 - **[2026/03]** **📄 The complete implementation of ESPDet will be released upon the acceptance of our paper.**
-- **[2026/02]** Our paper is submitted to *Remote Sensing of Environment*.
+- **[2026/03]** Our paper is submitted to *Remote Sensing of Environment*.
 
 ---
 
