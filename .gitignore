@@ -1,0 +1,10 @@
+# 默认忽略的文件
+/shelf/
+/workspace.xml
+__pycache__/
+*.pyc
+checkpoint/
+data/
+results/
+.vscode/
+.idea/
