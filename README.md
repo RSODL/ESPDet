@@ -25,7 +25,7 @@
 
 ## 🆕 What's New
 - **[2026/03]** ESPDet code is officially released!
-- **[2026/03]** Our paper is submitted to *Remote Sensing of Environment*.
+- **[2026/03]** Our paper is submitted.
 
 ---
 
