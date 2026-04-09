@@ -30,7 +30,7 @@
 
 ## 📦 Resources & Data
 - **Model Weights & Logs**: trained weights and detailed training logs are available at [Baidu Netdisk (Link)](https://pan.baidu.com/s/1jniOQEKYm45HAmPvcGESdQ?pwd=srxr) (Password: `srxr`).
-- **Dataset Status**: We are currently preparing a comprehensive version of the SOP dataset for open access. While the full dataset is under a staged release process to meet data-sharing protocols, we provide sample images in the demo/ folder for initial testing and verification. The complete dataset is scheduled for public release by August 2026.
+- **Dataset Status**: We are currently preparing a comprehensive version of the SOP dataset for open access. While the full dataset is under a staged release process to meet data-sharing protocols, we provide sample images in the demo/ folder for initial testing and verification. We anticipate the full release of the entire repository no later than August 2026.
   
 ---
 
