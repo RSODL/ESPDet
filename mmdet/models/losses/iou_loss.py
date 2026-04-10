@@ -405,6 +405,70 @@ def siou_loss(pred, target, eps=1e-7, neg_gamma=False):
     loss = 1 - sious.clamp(min=-1.0, max=1.0)
     return loss
 
+@weighted_loss
+def focaler_giou_loss(pred: torch.Tensor, target: torch.Tensor,
+                      gamma: float = 1.5, alpha: float = 0.25,
+                 eps: float = 1e-7) -> torch.Tensor:
+    """
+    Focal-GIoU-EIoU Loss: 避免中心点约束，强化形状和重叠度匹配
+    """
+    # 精度处理
+    if pred.dtype == torch.float16:
+        fp16 = True
+        pred = pred.float()
+        target = target.float()
+    else:
+        fp16 = False
+
+    pred = pred.clamp(min=0)
+    target = target.clamp(min=0)
+
+    # 计算基础IoU和GIoU
+    ious = bbox_overlaps(pred, target, mode='iou', is_aligned=True, eps=eps)
+    gious = bbox_overlaps(pred, target, mode='giou', is_aligned=True, eps=eps)
+
+    # 基础GIoU损失
+    base_giou_loss = 1 - gious
+
+    # 计算边长惩罚
+    def calculate_eiou_penalty(pred_boxes, target_boxes):
+        """计算边长惩罚项，替代中心点距离"""
+        pred_wh = pred_boxes[:, 2:] - pred_boxes[:, :2]
+        target_wh = target_boxes[:, 2:] - target_boxes[:, :2]
+
+        # 计算最小外接矩形的宽高
+        min_x1 = torch.min(pred_boxes[:, 0], target_boxes[:, 0])
+        min_y1 = torch.min(pred_boxes[:, 1], target_boxes[:, 1])
+        max_x2 = torch.max(pred_boxes[:, 2], target_boxes[:, 2])
+        max_y2 = torch.max(pred_boxes[:, 3], target_boxes[:, 3])
+
+        cw = max_x2 - min_x1  # 外接矩形宽度
+        ch = max_y2 - min_y1  # 外接矩形高度
+
+        # 宽度和高度差异惩罚
+        rho2_w = (pred_wh[:, 0] - target_wh[:, 0]) ** 2
+        rho2_h = (pred_wh[:, 1] - target_wh[:, 1]) ** 2
+
+        c2_w = cw ** 2 + eps
+        c2_h = ch ** 2 + eps
+
+        box_penalty = (rho2_w / c2_w) + (rho2_h / c2_h)
+        return box_penalty
+
+    box_penalty = calculate_eiou_penalty(pred, target)
+
+    # Focal权重调制：关注难样本
+    focal_weight = (1-ious) ** gamma
+
+    # 最终损失
+    focal_loss = base_giou_loss + alpha *focal_weight *box_penalty
+    focal_loss = focal_loss.clamp(min=0, max=10)
+
+    if fp16:
+        focal_loss = focal_loss.half()
+
+    return focal_loss
+
 
 @MODELS.register_module()
 class IoULoss(nn.Module):
@@ -924,3 +988,80 @@ class SIoULoss(nn.Module):
             neg_gamma=self.neg_gamma,
             **kwargs)
         return loss
+
+
+@MODELS.register_module()
+class FocalerGIoULoss(nn.Module):
+    """Focaler-GIoU联合损失函数类
+    Args:
+        gamma (float): 调制因子，控制难易样本的权重差异，默认1.5
+        alpha (float): 平衡参数，调整难样本的关注程度，默认0.25
+        eps (float): 数值稳定性参数，防止除零错误，默认1e-6
+        reduction (str): 损失归约方式，可选'mean', 'sum', 'none'，默认'mean'
+        loss_weight (float): 损失权重，用于多任务学习中的权重调整，默认1.0
+    """
+
+    def __init__(self,
+                 gamma: float = 0.8,
+                 alpha: float = 0.25,
+                 eps: float = 1e-6,
+                 reduction: str = 'mean',
+                 loss_weight: float = 1.0) -> None:
+        super().__init__()
+        self.lambda_param = gamma
+        self.rho = alpha
+        self.eps = eps
+        self.reduction = reduction
+        self.loss_weight = loss_weight
+
+    def forward(self,
+                pred: Tensor,
+                target: Tensor,
+                weight: Optional[Tensor] = None,
+                avg_factor: Optional[int] = None,
+                reduction_override: Optional[str] = None,
+                **kwargs) -> Tensor:
+        """
+        Args:
+            pred (Tensor): 预测边界框，格式(x1, y1, x2, y2)，形状(n, 4)
+            target (Tensor): 真实边界框，形状(n, 4)
+            weight (Optional[Tensor], optional): 每个预测的权重，默认None
+            avg_factor (Optional[int], optional): 平均因子，用于损失平均计算，默认None
+            reduction_override (Optional[str], optional): 覆盖默认的归约方式，默认None
+                可选值："none", "mean", "sum"
+
+        Returns:
+            Tensor: 计算得到的损失张量
+        """
+        if weight is not None and not torch.any(weight > 0):
+            if pred.dim() == weight.dim() + 1:
+                weight = weight.unsqueeze(1)
+            return (pred * weight).sum()
+
+    
+        assert reduction_override in (None, 'none', 'mean', 'sum')
+
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
+
+        if weight is not None and weight.dim() > 1:
+            assert weight.shape == pred.shape
+            weight = weight.mean(-1)
+
+
+        loss = self.loss_weight * focaler_giou_loss(
+            pred,
+            target,
+            weight,
+            gamma=self.lambda_param,
+            alpha=self.rho,
+            eps=self.eps,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            **kwargs)
+
+        return loss
+
+
+
+
