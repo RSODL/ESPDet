@@ -117,4 +117,4 @@ dirs = 'work_dirs/'
 os.makedirs(dirs, exist_ok=True)
 num=len(os.listdir(dirs))
 work_dir = dirs+'/'+str(num)
-# resume_from = 'work_dirs/eddy_cls1/best_coco_bbox_mAP_epoch_20.pth'
+
