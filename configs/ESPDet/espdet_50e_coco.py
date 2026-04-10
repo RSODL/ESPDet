@@ -48,6 +48,7 @@ model = dict(
             pos_weight=0.25,
             neg_weight=0.75,
             loss_weight=1.0),
+        # loss_bbox=dict(type='FocalerGIoULoss', loss_weight=2.0),
         loss_bbox=dict(type='GIoULoss', loss_weight=2.0),
     ),
     train_cfg=None,
